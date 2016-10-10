@@ -37,22 +37,24 @@ def assign_trump(talon):
 
 def create_hands(players):
     """Creates empty list for each player's hand"""
+    hands = {}
     i = int(players)
     while i > 0:
-        HANDS[i] = []
+        hands[i] = []
         i -= 1
+    return hands
 
 
-def dealer(hands, talon):
+def dealer(hands, talon, hand_size):
     """Brings each hand's card count up to the HAND_SIZE"""
     print("Dealing...")
     print("---------------------------------\n")
     for k, v in hands.items():
-        while len(v) < HAND_SIZE and len(talon) > 0:
+        while len(v) < hand_size and len(talon) > 0:
             v.append(talon.pop())
 
 
-def print_hand(hand, player, talon=TALON, trump=TRUMP):
+def print_hand(hand, player, talon, trump):
     """Takes single list of PlayingCard objects and the player number, prints hand in string format
         Also prints remaining cards in talon and trump card to remind players.
     """
@@ -61,13 +63,14 @@ def print_hand(hand, player, talon=TALON, trump=TRUMP):
     for card in hand:
         hand_string += "{}  ".format(card.card_name())
     print(hand_string)
+    print_seats(PLAYERS)
     print("Remaining cards: {}".format(len(talon)))
     print("Trump card: {}\n".format(trump.card_name()))
     print("---------------------------------\n")
 
 
-def print_seats():
-    print("PLAYERS = {}".format(PLAYERS))
+def print_seats(players, hands):
+    print("PLAYERS = {}".format(players))
     if PLAYERS == 2:
         print("     Player 2 ({} cards)    ".format(len(hands[2])))
         print("         |        ")

@@ -19,4 +19,4 @@ FIRST_PLAYER = first_to_play(HANDS, TRUMP)
 # TODO this line will eventually only show Player 1's hand (human)
 for player, hand in HANDS.items():
     print_hand(hand, player, TALON, TRUMP)
-
+print_seats()

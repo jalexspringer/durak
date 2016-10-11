@@ -6,9 +6,9 @@ HAND_SIZE = 6
 SUITS = ['D', 'C', 'H', 'S']
 
 # Starting a game of Durak
-print("Welcome to Durak!")
+print("\nWelcome to Durak!")
 player_count = number_of_players()
-print("Thank you - have a good game!")
+print("\nThank you - have a good game!")
 
 # Create deck, shuffle into talon, create hands, instantiate battlefield
 talon = card_gen(SUITS)
@@ -16,25 +16,29 @@ trump = assign_trump(talon)
 hands = create_hands(player_count)
 battlefield = {'attack': [], 'defense': []}
 
-# First deal, find out who goes first
+# First deal, find out who goes first, assign initial attacker and defender values
 dealer(hands, talon, HAND_SIZE)
-active_player = first_to_play(hands, trump)
-attacker = first_to_play(hands, trump)
+attacker, low_card = first_to_play(hands, trump)
+defender = next_player(attacker, player_count)
+print("Player {} has the lowest trump - {} - and will play first.".format(attacker, low_card))
+print("---------------------------------\n")
 
 # Initial print of game state
 print_seats(player_count, hands, trump, talon)
-for player, hand in hands.items():
-    print_hand(hand, player)
+print_hand(hands[attacker], attacker)
 
 # Begin main game loop
 # TODO Make this an actual loop :)
+
 # First attack
-played, hands[active_player] = play_card(hands[active_player], active_player, attacker)
+played, hands[attacker] = play_card(hands[attacker], attacker)
 battlefield['attack'].append(played)
 
 # Print state after first attack
 print_seats(player_count, hands, trump, talon)
 print_battlefield(battlefield)
-print_hand(hands[active_player], active_player)
 
 # Defense
+print_hand(hands[defender], defender)
+if to_defend(hands[defender], played, trump):
+    print("\nYOU ARE DEFENDING!")

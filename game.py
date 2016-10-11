@@ -20,10 +20,11 @@ def print_battlefield(battlefield):
     print(print_string + "\n")
 
 
-def play_card(hand, active_player, attacker):
-    """Takes a list of cards and user input, returns the hand minus the card
-       Runs until a card that is in the hand is input."""
-    if active_player == attacker:
+def play_card(hand, active_player, attacking=True):
+    """Takes a list of cards and user input, returns the card, and the hand minus the card.
+       Runs until a card that is in the hand is input.
+       Defaults to the attacker dialogue, set 3rd param to False for defender."""
+    if attacking:
         state = 'attack'
     else:
         state = 'defend'
@@ -36,31 +37,70 @@ def play_card(hand, active_player, attacker):
         print("That card is not in your hand. Please select a card from your hand.")
 
 
+def next_player(active_player, player_count):
+    """Increments active_player to start the next turn
+        Also used to assign defender value."""
+    if active_player != player_count:
+        active_player += 1
+    else:
+        active_player = 1
+    return active_player
+
+
 def first_attack(valid_play):
     """Plays first valid card to battlefield"""
     return valid_play
 
 
-def to_defend():
-    """Ask if the defender intends to continue the defense or take the cards"""
-    # TODO Add a check for legal plays
-    while True:
-        defending = input("Type 'defend' or 'take' to continue: ")
-        if defending == 'defend':
-            return True
-        elif defending == 'take':
-            return False
+def to_defend(hand, played, trump):
+    """Checks that the defender has a playable card, returns playable card options.
+        Ask if the defender intends to continue the defense or take the cards"""
+    valid_cards = ""
+    for card in hand:
+        if card.suit == played.suit and card.value > played.value:
+            valid_cards += card.card_name() + " "
+        elif card.suit == trump:
+            valid_cards += card.card_name() + " "
+    if len(valid_cards) > 0:
+        while True:
+            print("Valid card options: {}".format(valid_cards))
+            defending = input("Type 'defend' or 'take' to continue: ")
+            if defending == 'defend':
+                return True
+            elif defending == 'take':
+                return False
+            else:
+                print("{} is not an option.".format(defending))
+    else:
+        print("No valid options - taking cards.")
+        return False
 
 
-def to_attack():
-    """Ask if the attacker intends to continue the attack or pass"""
-    # TODO Add a check for legal plays
-    while True:
-        defending = input("Type 'attack' or 'pass' to continue: ")
-        if defending == 'attack':
-            return True
-        elif defending == 'pass':
-            return False
+def to_attack(hand, battlefield):
+    """Checks that the attacker has a playable card, returns playable card options.
+    Ask if the attacker intends to continue the attack or pass"""
+    valid_cards = ""
+    values = []
+    for k, v in battlefield:
+        for card in v:
+            if card.value not in values:
+                values.append(card.value)
+    for card in hand:
+        if card.value in values:
+            valid_cards += card.card_name() + " "
+    if len(valid_cards) > 0:
+        while True:
+            print("Valid card options: {}".format(valid_cards))
+            attacking = input("Type 'attack' or 'pass' to continue: ")
+            if attacking == 'attack':
+                return True
+            elif attacking == 'pass':
+                return False
+    elif len(battlefield['attack']) >= 6:
+        print("Max rounds (6) completed - discarding cards and ending the turn.")
+    else:
+        print("No valid options - discarding cards and ending the turn.")
+        return False
 
 
 def defense(valid_play, attack):

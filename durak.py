@@ -63,9 +63,7 @@ def first_to_play(hands, trump):
                 lowest = card.value
                 first_player = player
                 low_card = card.card_name()
-    print("Player {} has the lowest trump - {} - and will play first.".format(first_player, low_card))
-    print("---------------------------------\n")
-    return first_player
+    return first_player, low_card
 
 
 def print_seats(players, hands, trump, talon):

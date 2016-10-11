@@ -30,7 +30,6 @@ def card_gen(suits):
 def assign_trump(talon):
     """sets global trump variable - use at the start of each game"""
     trump = talon[0]
-    print("Trump card is {}".format(trump.card_name()))
     return trump
 
 
@@ -69,28 +68,18 @@ def first_to_play(hands, trump):
     return first_player
 
 
-def print_hand(hand, player):
-    """Takes single list of PlayingCard objects and the player number, prints hand in string format
-        Also prints remaining cards in talon and trump card to remind players.
-    """
-    hand_string = "Player {} current hand: ".format(player)
-    for card in hand:
-        hand_string += "{}  ".format(card.card_name())
-    print(hand_string)
-
-
 def print_seats(players, hands, trump, talon):
     """Generates a simple display to keep the player updated. Varies based on number of players.
         Shows total card count for each player, and whose turn it is."""
     if players == 2:
-        print("     Player 2 ({} cards)    ".format(len(hands[2])))
+        print("\n     Player 2 ({} cards)    ".format(len(hands[2])))
         print("         |        ")
         print("         |        ")
         print("         |        ")
         print("         |        ")
         print("     Player 1 ({} cards)    \n".format(len(hands[1])))
     elif players == 3:
-        print("     Player 3 ({} cards)    ".format(len(hands[3])))
+        print("\n     Player 3 ({} cards)    ".format(len(hands[3])))
         print("      /             |   ")
         print("     /              |   ")
         print("Player 2 ({} cards)  |".format(len(hands[2])))
@@ -98,7 +87,7 @@ def print_seats(players, hands, trump, talon):
         print("      \             |   ")
         print("     Player 1 ({} cards)    \n".format(len(hands[1])))
     elif players == 4:
-        print("      Player 3 ({} cards)    ".format(len(hands[3])))
+        print("\n      Player 3 ({} cards)    ".format(len(hands[3])))
         print("      /                 \ ")
         print("     /                   \ ")
         print("Player 2 ({} cards)    Player 4 ({} cards)".format(len(hands[2]), len(hands[4])))

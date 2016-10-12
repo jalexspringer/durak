@@ -1,39 +1,52 @@
-def main_game_loop(player_count, hands, trump, talon, attacker, defender, battlefield):
+def main_game_loop(player_count, hands, trump, talon, attacker, defender, battlefield, discard):
     # New turn print of game state
-    print_seats(player_count, hands, trump, talon)
-    print_hand(hands[attacker], attacker)
+    print_seats(player_count, hands, trump, talon, discard)
+    first_attack_hand_string = print_hand(hands[attacker], attacker)
 
     # First attack
-    played, hands[attacker] = play_card(hands[attacker], attacker)
-    battlefield['attack'].append(played)
+    if len(hands[defender]) > 0 and len(hands[attacker]) > 0:
+        played, hands[attacker] = play_card(hands[attacker], attacker, first_attack_hand_string)
+        battlefield['attack'].append(played)
+    elif len(hands[attacker]) == 0:
+        attacker = next_player(attacker, player_count)
+        defender = next_player(attacker, player_count)
+        return attacker, defender
+    elif len(hands[defender]) == 0:
+        defender = next_player(defender, player_count)
+        return attacker, defender
 
     # Print state after first attack
-    print_all(player_count, hands, trump, talon, battlefield)
+    print_all(player_count, hands, trump, talon, battlefield, discard)
 
     # Defense/attack loop
+    return internal_game_loop(player_count, hands, trump, talon, attacker, defender, battlefield, discard, played)
+
+
+def internal_game_loop(player_count, hands, trump, talon, attacker, defender, battlefield, discard, played, press=True):
     while True:
         # Show legal cards, offer a chance to defend or take all cards
-        for player, hand in hands.items():
-            print_hand(hand, player)
-
-        if to_defend(hands[defender], played, trump, defender):  # defend
-            played, hands[defender] = play_card(hands[defender], defender, False)
+        defending, valid_cards = to_defend(hands[defender], played, trump, defender)  # defend or not to defend
+        if defending:
+            played, hands[defender] = play_card(hands[defender], defender, valid_cards, False)
             battlefield['defense'].append(played)
-            print_all(player_count, hands, trump, talon, battlefield)
+            print_all(player_count, hands, trump, talon, battlefield, discard)
 
             # Show legal cards, offer a chance to attack or pass and end attack
-            if to_attack(hands[attacker], battlefield, attacker):  # attack
-                played, hands[attacker] = play_card(hands[attacker], attacker)
+            attacking, valid_cards = to_attack(hands[attacker], battlefield, attacker)  # attack
+            if attacking:
+                played, hands[attacker] = play_card(hands[attacker], attacker, valid_cards)
                 battlefield['attack'].append(played)
-                print_all(player_count, hands, trump, talon, battlefield)
+                print_all(player_count, hands, trump, talon, battlefield, discard)
             else:  # pass
                 # If the game has 3 or 4 players, the attack can be continued by the player after the defender
-                # if player_count > 2 and press:
-                #    press_attack(player_count, hands, trump, talon, attacker, defender, battlefield, hand_size)
+                if player_count > 2 and press:
+                    press_attack(player_count, hands, trump, talon, attacker, defender, battlefield, discard, played)
                 print("PLAYER {} - DISCARDING CARDS - END OF ATTACK".format(attacker))
-                # TODO Discard cards list
+                for k, v in battlefield.items():
+                    for card in v:
+                        discard.append(card)
                 attacker = next_player(attacker, player_count)
-                defender = next_player(defender, player_count)
+                defender = next_player(attacker, player_count)
                 return attacker, defender
         else:  # take all cards
             additional_throws = throw_in(battlefield, hands[attacker])
@@ -46,7 +59,7 @@ def main_game_loop(player_count, hands, trump, talon, attacker, defender, battle
                     hands[defender].append(card)
             for i in range(2):
                 attacker = next_player(attacker, player_count)
-                defender = next_player(defender, player_count)
+                defender = next_player(attacker, player_count)
             return attacker, defender
 
 
@@ -59,7 +72,7 @@ def dealer(hands, talon, hand_size):
             v.append(talon.pop())
 
 
-def play_card(hand, active_player, attacking=True):
+def play_card(hand, active_player, valid_cards, attacking=True):
     """Takes a list of cards and user input, returns the card, and the hand minus the card.
        Runs until a card that is in the hand is input.
        Defaults to the attacker dialogue, set 3rd param to False for defender."""
@@ -70,10 +83,10 @@ def play_card(hand, active_player, attacking=True):
     while True:
         played = input("Player {}, what card would you like to {} with? ".format(active_player, state))
         for idx, card in enumerate(hand):
-            if card.card_name() == played.upper():
+            if card.card_name() == played.upper() and played.upper() in valid_cards:
                 valid_play = hand.pop(idx)
                 return valid_play, hand
-        print("That card is not in your hand. Please select a card from your hand.")
+        print("That card is not an option. Please select a card from your hand and in the list of playable cards.")
 
 
 def next_player(active_player, player_count):
@@ -98,22 +111,22 @@ def to_defend(hand, played, trump, defender):
     for card in hand:
         if card.suit == played.suit and card.value > played.value:
             valid_cards += card.card_name() + " "
-        if card.suit == trump:
+        elif card.suit == trump.suit:
             valid_cards += card.card_name() + " "
     if len(valid_cards) > 0:
         while True:
             print_hand(hand, defender)
             print("Valid card options: {}".format(valid_cards))
-            defending = input("Type 'defend' or 'take' to continue: ")
-            if defending == 'defend':
-                return True
+            defending = input("Type 'd' or 'take' to continue: ")
+            if defending == 'd':
+                return True, valid_cards
             elif defending == 'take':
-                return False
+                return False, valid_cards
             else:
                 print("{} is not an option.".format(defending))
     else:
         print("No valid options - taking cards.")
-        return False
+        return False, valid_cards
 
 
 def to_attack(hand, battlefield, attacker):
@@ -132,19 +145,21 @@ def to_attack(hand, battlefield, attacker):
         while True:
             print_hand(hand, attacker)
             print("Valid card options: {}".format(valid_cards))
-            attacking = input("Type 'attack' or 'pass' to continue: ")
-            if attacking == 'attack':
-                return True
+            attacking = input("Type 'a' or 'pass' to continue: ")
+            if attacking == 'a':
+                return True, valid_cards
             elif attacking == 'pass':
-                return False
+                return False, valid_cards
     elif len(battlefield['attack']) >= 6:
         print("Max rounds (6) completed - discarding cards and ending the turn.")
     else:
         print("No valid options - discarding cards and ending the turn.")
-        return False
+        return False, valid_cards
 
 
 def throw_in(battlefield, hand):
+    """Prompts to see if the attacker would like to add the rest of the cards with a matching value.
+        returns the list of cards."""
     valid_cards = ""
     values = []
     cards = []
@@ -157,18 +172,31 @@ def throw_in(battlefield, hand):
             valid_cards += card.card_name() + " "
             cards.append(card)
     if len(valid_cards) > 0:
+        print("Attacking player may throw in the rest of the cards in your hand with matching values.")
+        print(valid_cards)
         response = input("THROW IN DOUBLES? (y/n)")
         if response == "y":
-            # TODO implement the throw-in process
             return cards
 
 
-def print_all(player_count, hands, trump, talon, battlefield):
-    print_seats(player_count, hands, trump, talon)
+def press_attack(player_count, hands, trump, talon, attacker, defender, battlefield, discard, played):
+    """After defense() returns False, attacker has the option to add in all cards of a certain value
+        """
+    thrower = next_player(defender, player_count)
+    keep_attacking = input("Player {} has passed on the attack."
+                           " Player {} would you like to continue? (y/n) ".format(attacker, thrower))
+    if keep_attacking == "y":
+        internal_game_loop(player_count, hands, trump, talon, thrower, defender, battlefield, discard, played)
+    else:
+        print("PLAYER {} - DISCARDING CARDS - END OF ATTACK".format(thrower))
+
+
+def print_all(player_count, hands, trump, talon, battlefield, discard):
+    print_seats(player_count, hands, trump, talon, discard)
     print_battlefield(battlefield)
 
 
-def print_seats(players, hands, trump, talon):
+def print_seats(players, hands, trump, talon, discard):
     """Generates a simple display to keep the player updated. Varies based on number of players.
         Shows total card count for each player, and whose turn it is."""
     if players == 2:
@@ -194,13 +222,14 @@ def print_seats(players, hands, trump, talon):
         print("     \                   /")
         print("      \                 / ")
         print("      Player 1 ({} cards)    \n".format(len(hands[1])))
-    print_state(trump, talon)
+    print_state(trump, talon, discard)
 
 
-def print_state(trump, talon):
+def print_state(trump, talon, discard):
     """Prints important game state information"""
     print("Remaining cards: {}".format(len(talon)))
     print("Trump card: {}".format(trump.card_name()))
+    print("Total discard: {}".format(len(discard)))
     print("---------------------------------\n")
 
 
@@ -212,11 +241,11 @@ def print_hand(hand, player):
     for card in sorted_hand:
         hand_string += "{}  ".format(card.card_name())
     print(hand_string)
+    return hand_string
 
 
 def print_battlefield(battlefield):
     """Takes the battlefield and prints to the console"""
-    print(battlefield)
     print_string = 'Attacks: '
     for card in battlefield['attack']:
         print_string += card.card_name() + " | "
@@ -225,3 +254,4 @@ def print_battlefield(battlefield):
     for card in battlefield['defense']:
         print_string += card.card_name() + " | "
     print(print_string + "\n")
+

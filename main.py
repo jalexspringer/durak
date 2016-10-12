@@ -16,6 +16,7 @@ talon = card_gen(SUITS)
 trump = assign_trump(talon)
 hands = create_hands(player_count)
 battlefield = {'attack': [], 'defense': []}
+discard = []
 
 # First deal, find out who goes first, assign initial attacker and defender values
 dealer(hands, talon, HAND_SIZE)
@@ -30,16 +31,20 @@ counter = 0
 while counter < player_count - 1:
     # MAIN GAME LOOP
     dealer(hands, talon, HAND_SIZE)
-    attacker, defender = main_game_loop(player_count, hands, trump, talon, attacker, defender, battlefield)
-    battlefield = {'attack': [], 'defense': []}
-    counter = 0
-    cards_in_hand = []
-    for k, v in hands.items():
-        cards_in_hand.append(len(v))
-    cards_in_hand.sort()
-    for i in cards_in_hand:
-        if i == 0:
-            counter += 1
+    if len(hands[attacker]) > 0:
+        attacker, defender = main_game_loop(player_count, hands, trump, talon, attacker, defender, battlefield, discard)
+        battlefield = {'attack': [], 'defense': []}
+        counter = 0
+        cards_in_hand = []
+        for k, v in hands.items():
+            cards_in_hand.append(len(v))
+        cards_in_hand.sort()
+        for i in cards_in_hand:
+            if i == 0:
+                counter += 1
+    else:
+        attacker = next_player(attacker, player_count)
+        defender = next_player(attacker, player_count)
 
 loser = 0
 for k, v in hands.items():

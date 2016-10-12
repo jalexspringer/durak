@@ -43,15 +43,6 @@ def create_hands(players):
     return hands
 
 
-def dealer(hands, talon, hand_size):
-    """Brings each hand's card count up to the HAND_SIZE"""
-    print("Dealing...")
-    print("---------------------------------\n")
-    for k, v in hands.items():
-        while len(v) < hand_size and len(talon) > 0:
-            v.append(talon.pop())
-
-
 def first_to_play(hands, trump):
     """Checks each hand for the lowest trump card and returns who goes first."""
     lowest = 15
@@ -64,39 +55,3 @@ def first_to_play(hands, trump):
                 first_player = player
                 low_card = card.card_name()
     return first_player, low_card
-
-
-def print_seats(players, hands, trump, talon):
-    """Generates a simple display to keep the player updated. Varies based on number of players.
-        Shows total card count for each player, and whose turn it is."""
-    if players == 2:
-        print("\n     Player 2 ({} cards)    ".format(len(hands[2])))
-        print("         |        ")
-        print("         |        ")
-        print("         |        ")
-        print("         |        ")
-        print("     Player 1 ({} cards)    \n".format(len(hands[1])))
-    elif players == 3:
-        print("\n     Player 3 ({} cards)    ".format(len(hands[3])))
-        print("      /             |   ")
-        print("     /              |   ")
-        print("Player 2 ({} cards)  |".format(len(hands[2])))
-        print("     \              |   ")
-        print("      \             |   ")
-        print("     Player 1 ({} cards)    \n".format(len(hands[1])))
-    elif players == 4:
-        print("\n      Player 3 ({} cards)    ".format(len(hands[3])))
-        print("      /                 \ ")
-        print("     /                   \ ")
-        print("Player 2 ({} cards)    Player 4 ({} cards)".format(len(hands[2]), len(hands[4])))
-        print("     \                   /")
-        print("      \                 / ")
-        print("      Player 1 ({} cards)    \n".format(len(hands[1])))
-    print_state(trump, talon)
-
-
-def print_state(trump, talon):
-    """Prints important game state information"""
-    print("Remaining cards: {}".format(len(talon)))
-    print("Trump card: {}".format(trump.card_name()))
-    print("---------------------------------\n")

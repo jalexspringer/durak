@@ -29,9 +29,9 @@ print("---------------------------------\n")
 counter = 0
 while counter < player_count - 1:
     # MAIN GAME LOOP
+    dealer(hands, talon, HAND_SIZE)
     attacker, defender = main_game_loop(player_count, hands, trump, talon, attacker, defender, battlefield)
     battlefield = {'attack': [], 'defense': []}
-    dealer(hands, talon, HAND_SIZE)
     counter = 0
     cards_in_hand = []
     for k, v in hands.items():

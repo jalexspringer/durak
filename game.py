@@ -13,6 +13,9 @@ def main_game_loop(player_count, hands, trump, talon, attacker, defender, battle
     # Defense/attack loop
     while True:
         # Show legal cards, offer a chance to defend or take all cards
+        for player, hand in hands.items():
+            print_hand(hand, player)
+
         if to_defend(hands[defender], played, trump, defender):  # defend
             played, hands[defender] = play_card(hands[defender], defender, False)
             battlefield['defense'].append(played)
@@ -33,7 +36,10 @@ def main_game_loop(player_count, hands, trump, talon, attacker, defender, battle
                 defender = next_player(defender, player_count)
                 return attacker, defender
         else:  # take all cards
-            battlefield['attack'].append(throw_in(battlefield, hands[attacker]))
+            additional_throws = throw_in(battlefield, hands[attacker])
+            if additional_throws:
+                for card in additional_throws:
+                    battlefield['attack'].append(card)
             print("PLAYER {} - TAKING CARDS AND SKIPPING YO TURN!!".format(defender))
             for k, v in battlefield.items():
                 for card in v:

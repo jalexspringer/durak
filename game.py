@@ -26,6 +26,7 @@ def internal_game_loop(player_count, hands, trump, talon, attacker, defender, ba
     while True:
         # Show legal cards, offer a chance to defend or take all cards
         defending, valid_cards = to_defend(hands[defender], played, trump, defender)  # defend or not to defend
+
         if defending:
             played, hands[defender] = play_card(hands[defender], defender, valid_cards, False)
             battlefield['defense'].append(played)
@@ -33,21 +34,9 @@ def internal_game_loop(player_count, hands, trump, talon, attacker, defender, ba
 
             # Show legal cards, offer a chance to attack or pass and end attack
             attacking, valid_cards = to_attack(hands[attacker], battlefield, attacker)  # attack
-            if attacking:
-                played, hands[attacker] = play_card(hands[attacker], attacker, valid_cards)
-                battlefield['attack'].append(played)
-                print_all(player_count, hands, trump, talon, battlefield, discard)
-            else:  # pass
-                # If the game has 3 or 4 players, the attack can be continued by the player after the defender
-                if player_count > 2 and press:
-                    press_attack(player_count, hands, trump, talon, attacker, defender, battlefield, discard, played)
-                print("PLAYER {} - DISCARDING CARDS - END OF ATTACK".format(attacker))
-                for k, v in battlefield.items():
-                    for card in v:
-                        discard.append(card)
-                attacker = next_player(attacker, player_count)
-                defender = next_player(attacker, player_count)
-                return attacker, defender
+            return attacking_inner_loop(attacking, hands, attacker, valid_cards, battlefield, 
+                                        player_count, trump, talon, discard, press, defender, played)
+
         else:  # take all cards
             additional_throws = throw_in(battlefield, hands[attacker])
             if additional_throws:
@@ -61,6 +50,25 @@ def internal_game_loop(player_count, hands, trump, talon, attacker, defender, ba
                 attacker = next_player(attacker, player_count)
                 defender = next_player(attacker, player_count)
             return attacker, defender
+
+
+def attacking_inner_loop(attacking, hands, attacker, valid_cards, battlefield, player_count,
+                         trump, talon, discard, press, defender, played):
+    if attacking:
+        played, hands[attacker] = play_card(hands[attacker], attacker, valid_cards)
+        battlefield['attack'].append(played)
+        print_all(player_count, hands, trump, talon, battlefield, discard)
+    else:  # pass
+        # If the game has 3 or 4 players, the attack can be continued by the player after the defender
+        if player_count > 2 and press:
+            press_attack(player_count, hands, trump, talon, attacker, defender, battlefield, discard, played)
+        print("PLAYER {} - DISCARDING CARDS - END OF ATTACK".format(attacker))
+        for k, v in battlefield.items():
+            for card in v:
+                discard.append(card)
+        attacker = next_player(attacker, player_count)
+        defender = next_player(attacker, player_count)
+        return attacker, defender
 
 
 def dealer(hands, talon, hand_size):

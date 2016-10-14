@@ -23,7 +23,7 @@ def card_gen(suits):
     for suit in suits:
         for value in range(6, 15):
             deck.append(PlayingCard(suit, value))
-    # shuffle(deck)
+    shuffle(deck)
     return deck
 
 

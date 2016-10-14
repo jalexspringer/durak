@@ -3,8 +3,8 @@ from game import *
 
 # GLOBAL CONSTANTS
 HAND_SIZE = 6
-# SUITS = ['D', 'C', 'H', 'S']
-SUITS = ['H', 'S']
+SUITS = ['D', 'C', 'H', 'S']
+# SUITS = ['H', 'S']
 
 # Starting a game of Durak
 print("\nWelcome to Durak!")

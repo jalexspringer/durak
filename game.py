@@ -30,6 +30,12 @@ def internal_game_loop(player_count, hands, trump, talon, attacker, defender, ba
             played, hands[defender] = play_card(hands[defender], defender, valid_cards, 'defend')
             battlefield['defense'].append(played)
             print_all(player_count, hands, trump, talon, battlefield, discard)
+            # Check to see if the defender has just played their last card. If yes - end of round. Move to main to check
+            # if the talon is empty and defender is the winner.
+            if len(hands[defender]) == 0:
+                attacker = next_player(attacker, player_count)
+                defender = next_player(attacker, player_count)
+                return attacker, defender
 
             # Show legal cards, offer a chance to attack or pass and end attack
             attacking, valid_cards = to_attack(hands[attacker], battlefield, attacker)  # attack

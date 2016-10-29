@@ -4,7 +4,7 @@ from game import *
 # GLOBAL CONSTANTS
 HAND_SIZE = 6
 SUITS = ['D', 'C', 'H', 'S']
-# SUITS = ['H', 'S']
+# SUITS = ['H', 'S'] # Limited suits for testing.
 
 # Starting a game of Durak
 print("\nWelcome to Durak!")
@@ -15,6 +15,7 @@ print("\nThank you - have a good game!")
 talon = card_gen(SUITS)
 trump = assign_trump(talon)
 hands = create_hands(player_count)
+players = create_players(player_count)
 battlefield = {'attack': [], 'defense': []}
 discard = []
 
@@ -34,14 +35,7 @@ while counter < player_count - 1:
     if len(hands[attacker]) > 0:
         attacker, defender = main_game_loop(player_count, hands, trump, talon, attacker, defender, battlefield, discard)
         battlefield = {'attack': [], 'defense': []}
-        counter = 0
-        cards_in_hand = []
-        for k, v in hands.items():
-            cards_in_hand.append(len(v))
-        cards_in_hand.sort()
-        for i in cards_in_hand:
-            if i == 0:
-                counter += 1
+        counter = check_win_condition(hands)
     else:
         attacker = next_player(attacker, player_count)
         defender = next_player(attacker, player_count)

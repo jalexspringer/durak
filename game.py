@@ -71,11 +71,27 @@ def internal_game_loop(player_count, hands, trump, talon, attacker, defender, ba
 
 def dealer(hands, talon, hand_size):
     """Brings each hand's card count up to the HAND_SIZE"""
+    # TODO make the dealer start with the last attacker. Potentially move to the end of the game loop.
     print("Dealing...")
     print("---------------------------------\n")
     for k, v in hands.items():
         while len(v) < hand_size and len(talon) > 0:
             v.append(talon.pop())
+
+    for k, v in players.items():
+        while len(v.hand) <  hand_size
+
+
+def check_win_condition(hands):
+    cards_in_hand = []
+    counter = 0
+    for k, v in hands.items():
+        cards_in_hand.append(len(v))
+    cards_in_hand.sort()
+    for i in cards_in_hand:
+        if i == 0:
+            counter += 1
+    return counter
 
 
 def play_card(hand, active_player, valid_cards, state='attack'):
@@ -188,7 +204,7 @@ def throw_in(battlefield, hands, attacker):
 
 
 def press_attack(player_count, hands, trump, talon, attacker, defender, battlefield, discard, played):
-    """After defense() returns False, attacker has the option to add in all cards of a certain value
+    """After to_attack() returns False, next attacker has the option to continue the attack
         """
     thrower = next_player(defender, player_count)
     keep_attacking = input('Player {} has passed on the attack.\n'

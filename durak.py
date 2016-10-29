@@ -7,6 +7,19 @@ class PlayingCard:
         return str(self.value) + self.suit
 
 
+class Player:
+    def __init__(self, player_number):
+        self.player_number = player_number
+        self.hand = []
+        self.human = True
+
+    def return_hand(self):
+        return self.hand
+
+    def replace_hand(self, new_hand):
+        self.hand = new_hand
+
+
 def number_of_players():
     """Take player input to create the number of players in the game - 2, 3, 4"""
     player_count = int(input("How many players? (2, 3, or 4) "))
@@ -41,6 +54,14 @@ def create_hands(players):
         hands[i] = []
         i -= 1
     return hands
+
+
+def create_players(player_count):
+    """Instantiates Player objects for each player"""
+    players = {}
+    for i in range(player_count):
+        players[i] = Player(i+1)
+    return players
 
 
 def first_to_play(hands, trump):
